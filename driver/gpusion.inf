@@ -1,0 +1,71 @@
+; gpusion.inf — GPUsion Virtual GPU Driver Installation
+;
+; This INF file tells Windows how to install the GPUsion driver.
+; It defines the device class, hardware ID, and driver files to copy.
+;
+; To install (test signing mode, development only):
+;   1. Right-click gpusion.inf → Install
+;   OR
+;   2. pnputil /add-driver gpusion.inf /install
+;
+; License: MIT
+; Built in India 🇮🇳
+
+[Version]
+Signature   = "$WINDOWS NT$"
+Class       = Display
+ClassGuid   = {4D36E968-E325-11CE-BFC1-08002BE10318}
+Provider    = %ManufacturerName%
+DriverVer   = 05/27/2026, 1.0.0.0
+CatalogFile = gpusion.cat
+
+; Minimum Windows 10 version (build 19041 = 2004)
+; Required for WDDM 2.7 support
+PnpLockdown = 1
+
+[DestinationDirs]
+DefaultDestDir  = 12       ; %windir%\System32\drivers
+GPUsion_Files   = 12
+
+; ─── Manufacturer and Models ──────────────────────────────────────────────
+
+[Manufacturer]
+%ManufacturerName% = GPUsion_Models, NTamd64
+
+[GPUsion_Models.NTamd64]
+%DeviceName% = GPUsion_Install, PCI\VEN_6750&DEV_0001
+
+; ─── Installation ─────────────────────────────────────────────────────────
+
+[GPUsion_Install.NT]
+Include     = msdv.inf
+CopyFiles   = GPUsion_Files
+
+[GPUsion_Install.NT.HW]
+AddReg = GPUsion_HW_AddReg
+
+[GPUsion_HW_AddReg]
+; Disable power management for virtual device
+HKR,,"NoInterruptInD3",0x00010001,1
+
+[GPUsion_Install.NT.Services]
+AddService = gpusion, 0x00000002, GPUsion_ServiceInstall
+
+[GPUsion_ServiceInstall]
+DisplayName    = %ServiceName%
+ServiceType    = 1            ; SERVICE_KERNEL_DRIVER
+StartType      = 3            ; SERVICE_DEMAND_START
+ErrorControl   = 1            ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %12%\gpusion.sys
+LoadOrderGroup = Video
+
+[GPUsion_Files]
+gpusion.sys
+
+; ─── Strings ──────────────────────────────────────────────────────────────
+
+[Strings]
+ManufacturerName    = "GPUsion"
+DeviceName          = "GPUsion Virtual Adapter"
+ServiceName         = "GPUsion Virtual GPU Driver"
+DiskName            = "GPUsion Driver Disk"

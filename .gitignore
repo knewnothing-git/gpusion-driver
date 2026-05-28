@@ -1,0 +1,10 @@
+build/
+*.o
+*.a
+*.sys
+*.pdb
+.vs/
+Debug/
+Release/
+x64/
+.DS_Store

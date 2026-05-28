@@ -1,0 +1,131 @@
+# .github/workflows/ci.yml — GPUsion CI Pipeline
+#
+# What this does:
+#   1. Linux: Syntax-checks all driver C files with GCC (strict warnings)
+#   2. Linux: Runs unit tests (platform-independent logic only)
+#   3. Windows: (Future) Full WDK driver build + WHQL static analysis
+#
+# Triggers: every push and pull request to main and develop branches.
+#
+# License: MIT
+# Built in India 🇮🇳
+
+name: GPUsion CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+
+  # ─── Job 1: Linux Syntax Check ──────────────────────────────────────────
+  syntax-check:
+    name: Syntax Check (Linux / GCC)
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install build tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y cmake gcc g++ ninja-build
+
+      - name: Configure
+        run: |
+          cmake -B build -G Ninja \
+            -DCMAKE_C_COMPILER=gcc \
+            -DCMAKE_BUILD_TYPE=Debug
+
+      - name: Build (syntax check)
+        run: cmake --build build --parallel
+
+      - name: Report
+        if: success()
+        run: |
+          echo "✅ Syntax check passed — all driver C files compile cleanly"
+          echo "   $(find driver -name '*.c' | wc -l) source files checked"
+
+  # ─── Job 2: Static Analysis ─────────────────────────────────────────────
+  static-analysis:
+    name: Static Analysis (cppcheck)
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install cppcheck
+        run: sudo apt-get update -qq && sudo apt-get install -y cppcheck
+
+      - name: Run cppcheck
+        run: |
+          cppcheck \
+            --enable=all \
+            --suppress=missingIncludeSystem \
+            --suppress=unusedFunction \
+            --error-exitcode=1 \
+            --inline-suppr \
+            -I driver \
+            -I driver/compat \
+            -D__linux__ \
+            driver/
+
+      - name: Report
+        if: success()
+        run: echo "✅ Static analysis passed"
+
+  # ─── Job 3: Unit Tests ──────────────────────────────────────────────────
+  unit-tests:
+    name: Unit Tests (Linux)
+    runs-on: ubuntu-24.04
+    needs: syntax-check
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y cmake gcc ninja-build
+
+      - name: Build tests
+        run: |
+          cmake -B build-tests -G Ninja \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DGPUSION_BUILD_TESTS=ON
+          cmake --build build-tests --parallel
+
+      - name: Run tests
+        run: |
+          cd build-tests
+          ctest --output-on-failure --parallel 4
+
+  # ─── Job 4: Windows WDK Build (future) ──────────────────────────────────
+  # Uncomment when Windows runner + WDK setup is ready
+  #
+  # windows-build:
+  #   name: Windows Driver Build (WDK)
+  #   runs-on: windows-2022
+  #   needs: syntax-check
+  #
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v4
+  #
+  #     - name: Install WDK
+  #       run: |
+  #         # WDK installation via winget
+  #         winget install Microsoft.WindowsDriverKit
+  #
+  #     - name: Build driver
+  #       run: |
+  #         msbuild driver/gpusion.vcxproj /p:Configuration=Debug /p:Platform=x64
+  #
+  #     - name: Static Driver Verifier
+  #       run: |
+  #         msbuild driver/gpusion.vcxproj /t:sdv /p:Inputs="/check:default.sdv"

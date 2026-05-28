@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GPUsion — PRD & Tech Spec</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #C9963A;
+    --gold-light: #e8b95a;
+    --gold-dim: #7a5a20;
+    --bg: #0d0d0d;
+    --bg2: #141414;
+    --bg3: #1c1c1c;
+    --border: #2a2a2a;
+    --text: #e8e4dc;
+    --muted: #888;
+    --white: #f5f0e8;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(13,13,13,0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 2rem; height: 56px;
+  }
+  .nav-brand {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.4rem; color: var(--gold); letter-spacing: 0.02em;
+  }
+  .nav-links {
+    display: flex; gap: 0.25rem; list-style: none;
+  }
+  .nav-links a {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem; color: var(--muted);
+    text-decoration: none; padding: 0.3rem 0.7rem;
+    border-radius: 3px; transition: all 0.2s;
+    letter-spacing: 0.05em; text-transform: uppercase;
+  }
+  .nav-links a:hover, .nav-links a.active {
+    color: var(--gold); background: rgba(201,150,58,0.1);
+  }
+  .nav-flag {
+    font-size: 1.2rem; opacity: 0.8;
+  }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center; padding: 6rem 2rem 4rem;
+    position: relative; overflow: hidden;
+  }
+  .hero-grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(201,150,58,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(201,150,58,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse 80% 70% at 50% 50%, black 30%, transparent 100%);
+  }
+  .hero-glow {
+    position: absolute; top: 20%; left: 50%;
+    transform: translateX(-50%);
+    width: 600px; height: 600px;
+    background: radial-gradient(ellipse, rgba(201,150,58,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem; letter-spacing: 0.2em;
+    color: var(--gold); text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    opacity: 0; animation: fadeUp 0.8s 0.2s forwards;
+  }
+  .hero-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(5rem, 14vw, 10rem);
+    color: var(--gold);
+    line-height: 0.9;
+    letter-spacing: -0.02em;
+    opacity: 0; animation: fadeUp 0.8s 0.4s forwards;
+  }
+  .hero-sub {
+    font-size: 1.1rem; color: var(--muted);
+    margin-top: 1.5rem; max-width: 540px; line-height: 1.6;
+    opacity: 0; animation: fadeUp 0.8s 0.6s forwards;
+  }
+  .hero-tagline {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.4rem; color: var(--white); font-style: italic;
+    margin-top: 0.75rem;
+    opacity: 0; animation: fadeUp 0.8s 0.7s forwards;
+  }
+  .hero-badges {
+    display: flex; gap: 0.75rem; margin-top: 2.5rem; flex-wrap: wrap; justify-content: center;
+    opacity: 0; animation: fadeUp 0.8s 0.9s forwards;
+  }
+  .badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 0.4rem 1rem; border-radius: 2px;
+    border: 1px solid var(--gold-dim); color: var(--gold);
+    background: rgba(201,150,58,0.06);
+  }
+  .scroll-hint {
+    margin-top: 4rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem; color: var(--muted); letter-spacing: 0.15em;
+    opacity: 0; animation: fadeUp 0.8s 1.2s forwards;
+  }
+  .scroll-line {
+    width: 1px; height: 40px; background: linear-gradient(var(--gold), transparent);
+    margin: 0.5rem auto 0;
+    animation: pulse 2s infinite;
+  }
+
+  /* SECTIONS */
+  section {
+    max-width: 960px; margin: 0 auto;
+    padding: 5rem 2rem;
+    border-top: 1px solid var(--border);
+  }
+  section:first-of-type { border-top: none; }
+
+  .section-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem; color: var(--gold-dim);
+    letter-spacing: 0.2em; text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+  .section-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2.4rem; color: var(--white);
+    margin-bottom: 0.5rem; line-height: 1.1;
+  }
+  .section-lead {
+    font-size: 1rem; color: var(--muted); line-height: 1.7;
+    max-width: 640px; margin-bottom: 2.5rem;
+  }
+
+  /* CALLOUT BOX */
+  .callout {
+    border: 1px solid var(--gold-dim);
+    border-left: 3px solid var(--gold);
+    background: rgba(201,150,58,0.05);
+    padding: 1.25rem 1.5rem; border-radius: 2px;
+    margin: 1.5rem 0;
+  }
+  .callout-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem; color: var(--gold);
+    letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 0.5rem;
+  }
+  .callout p { font-size: 0.95rem; line-height: 1.7; color: var(--text); }
+
+  /* GRID CARDS */
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); margin: 2rem 0; }
+  .card { background: var(--bg2); padding: 1.5rem; transition: background 0.2s; }
+  .card:hover { background: var(--bg3); }
+  .card-icon { font-size: 1.5rem; margin-bottom: 0.75rem; }
+  .card-title { font-family: 'DM Serif Display', serif; font-size: 1.1rem; color: var(--gold); margin-bottom: 0.5rem; }
+  .card-body { font-size: 0.88rem; color: var(--muted); line-height: 1.6; }
+
+  /* TABLE */
+  .spec-table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.88rem; }
+  .spec-table th { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); background: var(--bg3); padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid var(--gold-dim); }
+  .spec-table td { padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: top; }
+  .spec-table tr:last-child td { border-bottom: none; }
+  .spec-table tr:hover td { background: rgba(201,150,58,0.03); }
+  .spec-table td:first-child { font-family: 'DM Mono', monospace; font-size: 0.78rem; color: var(--gold); white-space: nowrap; }
+
+  /* ARCH DIAGRAM */
+  .arch {
+    background: #0a0a0a; border: 1px solid var(--border);
+    border-radius: 4px; padding: 2rem; margin: 2rem 0;
+    font-family: 'DM Mono', monospace;
+  }
+  .arch-layer {
+    border: 1px solid var(--border); border-radius: 3px;
+    padding: 1rem 1.25rem; margin-bottom: 0.5rem;
+    transition: border-color 0.2s, background 0.2s;
+    cursor: default;
+  }
+  .arch-layer:hover { border-color: var(--gold-dim); background: rgba(201,150,58,0.04); }
+  .arch-layer-label {
+    font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 0.35rem;
+  }
+  .arch-layer-items {
+    font-size: 0.78rem; color: var(--muted);
+  }
+  .arch-arrow {
+    text-align: center; color: var(--gold-dim); font-size: 0.8rem;
+    padding: 0.15rem 0; letter-spacing: 0.1em;
+  }
+
+  /* PHASES */
+  .phases { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); margin: 2rem 0; }
+  .phase { background: var(--bg2); padding: 1.75rem 1.5rem; }
+  .phase-num { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--gold-dim); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 0.5rem; }
+  .phase-title { font-family: 'DM Serif Display', serif; font-size: 1.25rem; color: var(--gold); margin-bottom: 0.5rem; }
+  .phase-time { font-family: 'DM Mono', monospace; font-size: 0.72rem; color: var(--muted); margin-bottom: 1rem; }
+  .phase-items { list-style: none; }
+  .phase-items li { font-size: 0.85rem; color: var(--text); padding: 0.3rem 0; padding-left: 1rem; position: relative; line-height: 1.5; }
+  .phase-items li::before { content: '—'; position: absolute; left: 0; color: var(--gold-dim); }
+
+  /* PERSONAS */
+  .personas { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); margin: 2rem 0; }
+  .persona { background: var(--bg2); padding: 1.5rem; }
+  .persona-name { font-family: 'DM Serif Display', serif; font-size: 1.15rem; color: var(--white); margin-bottom: 0.25rem; }
+  .persona-role { font-family: 'DM Mono', monospace; font-size: 0.72rem; color: var(--gold); margin-bottom: 0.75rem; letter-spacing: 0.05em; }
+  .persona-pain { font-size: 0.88rem; color: var(--muted); line-height: 1.6; }
+
+  /* ROADMAP */
+  .roadmap { position: relative; margin: 2rem 0; }
+  .roadmap-line { position: absolute; left: 5.5rem; top: 0; bottom: 0; width: 1px; background: linear-gradient(var(--gold-dim), transparent); }
+  .roadmap-item { display: grid; grid-template-columns: 5.5rem 1fr; gap: 1.5rem; margin-bottom: 2rem; position: relative; }
+  .roadmap-time { font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--gold); text-align: right; padding-top: 0.15rem; letter-spacing: 0.05em; }
+  .roadmap-dot { position: absolute; left: calc(5.5rem - 4px); top: 0.4rem; width: 8px; height: 8px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 8px var(--gold); }
+  .roadmap-content { padding-left: 1.25rem; }
+  .roadmap-milestone { font-size: 0.95rem; font-weight: 600; color: var(--white); margin-bottom: 0.25rem; }
+  .roadmap-desc { font-size: 0.83rem; color: var(--muted); line-height: 1.5; }
+
+  /* RISKS */
+  .risks { display: grid; gap: 1px; background: var(--border); border: 1px solid var(--border); margin: 2rem 0; }
+  .risk { background: var(--bg2); padding: 1.25rem 1.5rem; display: grid; grid-template-columns: 160px 1fr 1fr; gap: 1rem; }
+  .risk-name { font-family: 'DM Mono', monospace; font-size: 0.78rem; color: var(--gold); }
+  .risk-desc { font-size: 0.85rem; color: var(--text); line-height: 1.5; }
+  .risk-mit { font-size: 0.83rem; color: var(--muted); line-height: 1.5; }
+
+  /* OS STRATEGY */
+  .os-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin: 2rem 0; }
+  .os-card { border: 1px solid var(--border); padding: 1.5rem; background: var(--bg2); }
+  .os-card-title { font-family: 'DM Mono', monospace; font-size: 0.72rem; color: var(--gold); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.75rem; }
+  .os-card ul { list-style: none; }
+  .os-card ul li { font-size: 0.85rem; color: var(--text); padding: 0.3rem 0; padding-left: 1rem; position: relative; line-height: 1.5; }
+  .os-card ul li::before { content: '›'; position: absolute; left: 0; color: var(--gold); }
+
+  /* METRICS */
+  .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); margin: 2rem 0; }
+  .metric { background: var(--bg2); padding: 1.5rem; text-align: center; }
+  .metric-val { font-family: 'DM Serif Display', serif; font-size: 2.2rem; color: var(--gold); margin-bottom: 0.25rem; }
+  .metric-label { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border);
+    text-align: center; padding: 4rem 2rem;
+  }
+  .footer-title { font-family: 'DM Serif Display', serif; font-size: 3rem; color: var(--gold); }
+  .footer-sub { font-family: 'DM Serif Display', serif; font-size: 1.1rem; color: var(--muted); font-style: italic; margin-top: 0.5rem; }
+  .footer-flag { font-size: 2rem; margin-top: 1.5rem; }
+  .footer-made { font-family: 'DM Mono', monospace; font-size: 0.72rem; color: var(--gold-dim); letter-spacing: 0.15em; margin-top: 0.5rem; }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 0.3; } 50% { opacity: 1; }
+  }
+  .reveal {
+    opacity: 0; transform: translateY(20px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  @media (max-width: 680px) {
+    .phases { grid-template-columns: 1fr; }
+    .personas { grid-template-columns: 1fr; }
+    .metrics { grid-template-columns: repeat(2, 1fr); }
+    .risk { grid-template-columns: 1fr; }
+    .os-grid { grid-template-columns: 1fr; }
+    nav .nav-links { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">GPUsion</div>
+  <ul class="nav-links">
+    <li><a href="#problem">Problem</a></li>
+    <li><a href="#vision">Vision</a></li>
+    <li><a href="#tech">Tech</a></li>
+    <li><a href="#opensource">Open Source</a></li>
+    <li><a href="#roadmap">Roadmap</a></li>
+  </ul>
+  <div class="nav-flag">🇮🇳</div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-eyebrow">Product Requirements Document · Technical Specification · v1.0</div>
+  <div class="hero-title">GPUsion</div>
+  <div class="hero-tagline">The GPU Illusion.</div>
+  <div class="hero-sub">An open-source AI acceleration platform that tricks Windows into believing every laptop already has a GPU. Built in India. For India.</div>
+  <div class="hero-badges">
+    <span class="badge">Open Source First</span>
+    <span class="badge">Windows · Phase 1</span>
+    <span class="badge">AI Inference</span>
+    <span class="badge">Made in India 🇮🇳</span>
+  </div>
+  <div class="scroll-hint">
+    Scroll to explore
+    <div class="scroll-line"></div>
+  </div>
+</div>
+
+<!-- SECTION 1: PROBLEM -->
+<section id="problem">
+  <div class="reveal">
+    <div class="section-num">01 — Problem Statement</div>
+    <div class="section-title">300 million laptops.<br>Zero GPUs.</div>
+    <p class="section-lead">India's middle class owns budget laptops in the ₹30,000–₹60,000 range. Every serious local AI workload requires hardware they cannot afford — or configuration complexity they cannot navigate.</p>
+  </div>
+
+  <div class="reveal">
+    <div class="callout">
+      <div class="callout-label">The Access Gap</div>
+      <p>Running Stable Diffusion requires a minimum ₹22,000 GPU. Running Llama 3 locally needs 8GB VRAM — another ₹25,000+. Cloud APIs cost ₹800–2,000/month. None of these are viable for a student in Patna or a freelancer in Coimbatore.</p>
+    </div>
+  </div>
+
+  <div class="reveal">
+    <table class="spec-table">
+      <thead><tr><th>Use Case</th><th>Current Requirement</th><th>Cost Barrier</th><th>GPUsion Target</th></tr></thead>
+      <tbody>
+        <tr><td>Stable Diffusion</td><td>RTX 3060 minimum</td><td>₹22,000+ GPU</td><td>✓ Phase 2</td></tr>
+        <tr><td>Llama 3 8B (local LLM)</td><td>8GB VRAM recommended</td><td>₹25,000+ GPU</td><td>✓ Phase 1</td></tr>
+        <tr><td>Whisper (speech-to-text)</td><td>GPU strongly preferred</td><td>5× slower on CPU</td><td>✓ Phase 1</td></tr>
+        <tr><td>Coding assistant (local)</td><td>GPU for real-time</td><td>Cloud = ₹800–2k/mo</td><td>✓ Phase 1</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="reveal">
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon">💸</div>
+        <div class="card-title">Hardware Cost</div>
+        <div class="card-body">Entry-level discrete GPU costs more than the laptop it would go into. Not an option for 90% of the target market.</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔧</div>
+        <div class="card-title">Configuration Hell</div>
+        <div class="card-body">CUDA versions, WSL2, driver conflicts, VRAM errors. A student should not need a CS degree to run a local model.</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🌐</div>
+        <div class="card-title">Cloud Dependency</div>
+        <div class="card-body">India sends billions of rupees abroad in cloud AI fees annually. GPUsion is infrastructure for AI sovereignty at the individual level.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 2: VISION -->
+<section id="vision">
+  <div class="reveal">
+    <div class="section-num">02 — Vision & Strategy</div>
+    <div class="section-title">The illusion that makes AI real.</div>
+    <p class="section-lead">GPUsion tricks Windows and every AI application into believing a GPU is present — while routing all compute to an optimized inference engine underneath. The deception is complete. The performance is real.</p>
+  </div>
+
+  <div class="reveal">
+    <div class="callout">
+      <div class="callout-label">Vision Statement</div>
+      <p>"Every Indian with a laptop should be able to run AI locally — for free, without a GPU, without cloud dependency, without configuration hell."</p>
+    </div>
+  </div>
+
+  <div class="reveal">
+    <div class="phases">
+      <div class="phase">
+        <div class="phase-num">Phase 01</div>
+        <div class="phase-title">Software Driver</div>
+        <div class="phase-time">Now → Month 6</div>
+        <ul class="phase-items">
+          <li>WDDM virtual GPU driver</li>
+          <li>DirectML / Vulkan intercept</li>
+          <li>CPU inference engine</li>
+          <li>One-click installer</li>
+          <li>Open source on GitHub</li>
+        </ul>
+      </div>
+      <div class="phase">
+        <div class="phase-num">Phase 02</div>
+        <div class="phase-title">Hardware Dongle</div>
+        <div class="phase-time">Month 6 → 12</div>
+        <ul class="phase-items">
+          <li>FPGA POC (Artix-7)</li>
+          <li>USB 3.2 interface</li>
+          <li>Dedicated inference core</li>
+          <li>Same driver, new backend</li>
+          <li>First 500 units sold</li>
+        </ul>
+      </div>
+      <div class="phase">
+        <div class="phase-num">Phase 03</div>
+        <div class="phase-title">GPUsion Chip</div>
+        <div class="phase-time">Month 12 → 24</div>
+        <ul class="phase-items">
+          <li>Custom ASIC design</li>
+          <li>TSMC 28nm target</li>
+          <li>4 TOPS performance</li>
+          <li>Sub-₹2,500 MSRP</li>
+          <li>OEM licensing</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- PERSONAS -->
+  <div class="reveal" style="margin-top:3rem;">
+    <div class="section-num">Who we build for</div>
+    <div class="personas">
+      <div class="persona">
+        <div class="persona-name">Arjun, 20</div>
+        <div class="persona-role">B.Tech CSE · Tier 2 city</div>
+        <div class="persona-pain">Wants a local coding assistant. Has a ₹45,000 laptop. Tried to set up Ollama three times. Failed each time. Gave up.</div>
+      </div>
+      <div class="persona">
+        <div class="persona-name">Priya, 28</div>
+        <div class="persona-role">Freelance designer · Mumbai</div>
+        <div class="persona-pain">Needs Stable Diffusion for client work. Cannot afford Midjourney monthly. Cloud latency breaks her creative flow.</div>
+      </div>
+      <div class="persona">
+        <div class="persona-name">Rajan, 35</div>
+        <div class="persona-role">Small business owner · Surat</div>
+        <div class="persona-pain">Wants local Whisper to transcribe customer calls in Hindi. Has zero technical knowledge. Needs it to just work.</div>
+      </div>
+      <div class="persona">
+        <div class="persona-name">Deepa, 24</div>
+        <div class="persona-role">MA student · Hyderabad</div>
+        <div class="persona-pain">Uses AI for research. Worried about sending sensitive documents to cloud APIs. Wants local, private, and free.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 3: TECH -->
+<section id="tech">
+  <div class="reveal">
+    <div class="section-num">03 — Technical Architecture</div>
+    <div class="section-title">The three-layer illusion.</div>
+    <p class="section-lead">Applications call standard GPU APIs. GPUsion intercepts at the driver layer and routes to an optimized inference engine. Every app believes a GPU is present. None of them need to change a single line of code.</p>
+  </div>
+
+  <div class="reveal">
+    <div class="arch">
+      <div class="arch-layer">
+        <div class="arch-layer-label">Application Layer — untouched</div>
+        <div class="arch-layer-items">Stable Diffusion · Ollama · Whisper · LM Studio · Any DirectML / Vulkan / OpenCL app</div>
+      </div>
+      <div class="arch-arrow">▼ standard GPU API calls (DirectML / Vulkan / OpenCL)</div>
+      <div class="arch-layer" style="border-color: var(--gold-dim); background: rgba(201,150,58,0.04);">
+        <div class="arch-layer-label" style="color:var(--gold-light);">GPUsion Virtual Driver — the illusion layer</div>
+        <div class="arch-layer-items">WDDM Kernel Driver · API Interceptor · GPU Command Translator · Fake Device Emulator · VRAM Proxy</div>
+      </div>
+      <div class="arch-arrow">▼ routed inference workloads</div>
+      <div class="arch-layer">
+        <div class="arch-layer-label">Inference Engine — Phase 1: CPU · Phase 2: FPGA · Phase 3: ASIC</div>
+        <div class="arch-layer-items">llama.cpp · ONNX Runtime · OpenBLAS · AVX2/AVX-512 SIMD · INT4/INT8 Quantization</div>
+      </div>
+      <div class="arch-arrow">▼ hardware compute</div>
+      <div class="arch-layer">
+        <div class="arch-layer-label">Hardware Layer</div>
+        <div class="arch-layer-items">Phase 1: CPU RAM as VRAM proxy · Phase 2: FPGA systolic array via USB · Phase 3: Custom ASIC</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="reveal">
+    <div class="section-num" style="margin-top:2rem;">Phase 1 — Software components</div>
+    <table class="spec-table">
+      <thead><tr><th>Component</th><th>Technology</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td>WDDM KMD</td><td>C, Windows Driver Kit</td><td>Registers virtual GPU adapter with Windows Device Manager</td></tr>
+        <tr><td>DXGI Adapter</td><td>DXGI / DirectX</td><td>GPUsion appears as "GPUsion Virtual Adapter" — 8GB fake VRAM</td></tr>
+        <tr><td>DirectML Bridge</td><td>DirectML SDK</td><td>Intercepts ML inference calls, routes to ONNX Runtime CPU</td></tr>
+        <tr><td>Inference Core</td><td>llama.cpp / ONNX Runtime</td><td>AVX2-optimised CPU inference with INT4/INT8 quantization</td></tr>
+        <tr><td>Installer</td><td>NSIS / WiX</td><td>One-click. No command line. No config. Just works.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="reveal">
+    <div class="section-num" style="margin-top:2rem;">Phase 1 — Supported frameworks (target)</div>
+    <table class="spec-table">
+      <thead><tr><th>Framework</th><th>Priority</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>Ollama</td><td>P0 — Critical</td><td>Largest local LLM user base in target market. Must work at launch.</td></tr>
+        <tr><td>llama.cpp</td><td>P0 — Critical</td><td>Direct integration. Most efficient CPU path for LLMs.</td></tr>
+        <tr><td>ONNX Runtime DirectML</td><td>P1 — High</td><td>Microsoft standard. Widest Windows app compatibility.</td></tr>
+        <tr><td>Whisper.cpp</td><td>P1 — High</td><td>Multilingual speech recognition — very high value for Indian users.</td></tr>
+        <tr><td>AUTOMATIC1111</td><td>P2 — Phase 2</td><td>Image generation. Aspirational Phase 1, confirmed Phase 2.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="reveal">
+    <div class="section-num" style="margin-top:2rem;">Phase 2 — Hardware POC spec</div>
+    <table class="spec-table">
+      <thead><tr><th>Spec</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td>FPGA</td><td>Xilinx Artix-7 or Lattice ECP5 (~$40–80 dev board)</td></tr>
+        <tr><td>Interface</td><td>USB 3.2 Gen 2 — 10Gbps (sufficient for quantized inference)</td></tr>
+        <tr><td>Accelerated ops</td><td>GEMM (matrix multiply), attention heads, activation functions</td></tr>
+        <tr><td>Firmware</td><td>Open-source RISC-V softcore + systolic array (Amaranth HDL)</td></tr>
+        <tr><td>Form factor</td><td>USB-A thumb drive size (POC) → credit card (Phase 3)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- SECTION 4: OPEN SOURCE -->
+<section id="opensource">
+  <div class="reveal">
+    <div class="section-num">04 — Open Source Strategy</div>
+    <div class="section-title">Open source is the weapon, not the product.</div>
+    <p class="section-lead">The driver and inference layer are MIT-licensed. This creates trust, distribution, and acquisition interest simultaneously. The hardware dongle is the commercial layer — open source makes it inevitable.</p>
+  </div>
+
+  <div class="reveal">
+    <div class="os-grid">
+      <div class="os-card">
+        <div class="os-card-title">GitHub Repositories — MIT Licensed</div>
+        <ul>
+          <li><strong>gpusion-driver</strong> — WDDM virtual adapter. The crown jewel.</li>
+          <li><strong>gpusion-inference</strong> — CPU translation layer</li>
+          <li><strong>gpusion-firmware</strong> — FPGA/ASIC firmware (Phase 2)</li>
+          <li><strong>gpusion-installer</strong> — One-click Windows installer</li>
+          <li><strong>gpusion-benchmark</strong> — Standardized benchmarks</li>
+        </ul>
+      </div>
+      <div class="os-card">
+        <div class="os-card-title">Community Flywheel</div>
+        <ul>
+          <li>HackerNews + r/LocalLLaMA launch post</li>
+          <li>r/india + IIT/NIT campus ambassadors</li>
+          <li>Issue bounty: ₹500–5,000 per contribution</li>
+          <li>100 stars → Indian tech media coverage</li>
+          <li>500 stars → International developer adoption</li>
+        </ul>
+      </div>
+      <div class="os-card">
+        <div class="os-card-title">Big Player Attraction</div>
+        <ul>
+          <li>Qualcomm — on-device AI for Indian chipsets</li>
+          <li>MediaTek — Dimensity AI abstraction layer</li>
+          <li>Microsoft — DirectML distribution channel</li>
+          <li>Intel — Meteor Lake NPU abstraction</li>
+          <li>Indian govt CHIPS scheme eligibility</li>
+        </ul>
+      </div>
+      <div class="os-card">
+        <div class="os-card-title">Commercial Layer</div>
+        <ul>
+          <li>Phase 1: ₹0 — 100% open source</li>
+          <li>Phase 2: GPUsion Stick @ ₹2,499</li>
+          <li>Phase 3: Enterprise multi-device packs</li>
+          <li>Long-term: OEM driver licensing</li>
+          <li>Moat: hardware + brand, not code</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 5: ROADMAP -->
+<section id="roadmap">
+  <div class="reveal">
+    <div class="section-num">05 — Roadmap</div>
+    <div class="section-title">From illusion to silicon.</div>
+    <p class="section-lead">Eight milestones across 24 months. Each phase validates before the next begins. No speculative spending, no phantom features.</p>
+  </div>
+
+  <div class="reveal">
+    <div class="roadmap">
+      <div class="roadmap-line"></div>
+      <div class="roadmap-item">
+        <div class="roadmap-time">M 1–2</div>
+        <div class="roadmap-dot"></div>
+        <div class="roadmap-content">
+          <div class="roadmap-milestone">Driver Skeleton</div>
+          <div class="roadmap-desc">WDDM virtual adapter registers in Device Manager. Basic DirectML passthrough to CPU ONNX runtime.</div>
+        </div>
+      </div>
+      <div class="roadmap-item">
+        <div class="roadmap-time">M 2–3</div>
+        <div class="roadmap-dot"></div>
+        <div class="roadmap-content">
+          <div class="roadmap-milestone">Ollama Integration</div>
+          <div class="roadmap-desc">GPUsion virtual GPU auto-selected by Ollama. First LLM runs end-to-end on a no-GPU laptop.</div>
+        </div>
+      </div>
+      <div class="roadmap-item">
+        <div class="roadmap-time">M 3–4</div>
+        <div class="roadmap-dot"></div>
+        <div class="roadmap-content">
+          <div class="roadmap-milestone">Installer + Non-technical UX</div>
+          <div class="roadmap-desc">One-click installer. Zero command line. First test with a non-technical user — if they fail, we failed.</div>
+        </div>
+      </div>
+      <div class="roadmap-item">
+        <div class="roadmap-time">M 4–5</div>
+        <div class="roadmap-dot"></div>
+        <div class="roadmap-content">
+          <div class="roadmap-milestone">GitHub Public Launch</div>
+          <div class="roadmap-desc">HackerNews + Reddit launch. Target: 500 GitHub stars within 30 days. First press coverage.</div>
+        </div>
+      </div>
+      <div class="roadmap-item">
+        <div class="roadmap-time">M 5–6</div>
+        <div class="roadmap-dot"></div>
+        <div class="roadmap-content">
+          <div class="roadmap-milestone">Benchmarks + Press</div>
+          <div class="roadmap-desc">Publish standardized performance data vs. real GPU baselines. Outreach to Indian tech media.</div>
+        </div>
+      </div>
+      <div class="roadmap-item">
+        <div class="roadmap-time">M 6–9</div>
+        <div class="roadmap-dot"></div>
+        <div class="roadmap-content">
+          <div class="roadmap-milestone">FPGA Hardware POC</div>
+          <div class="roadmap-desc">First physical dongle. FPGA-based inference. Demonstrate 2× performance vs. software-only.</div>
+        </div>
+      </div>
+      <div class="roadmap-item">
+        <div class="roadmap-time">M 9–12</div>
+        <div class="roadmap-dot"></div>
+        <div class="roadmap-content">
+          <div class="roadmap-milestone">Hardware v1 — First Sales</div>
+          <div class="roadmap-desc">Manufacturable GPUsion Stick. First 500 units. Flipkart + Amazon India listing. Target NPS > 40.</div>
+        </div>
+      </div>
+      <div class="roadmap-item">
+        <div class="roadmap-time">M 12–24</div>
+        <div class="roadmap-dot"></div>
+        <div class="roadmap-content">
+          <div class="roadmap-milestone">ASIC Design + Scale</div>
+          <div class="roadmap-desc">Custom chip design. TSMC 28nm tape-out funding. First OEM MOU. Proudly Made in India.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RISKS -->
+  <div class="reveal" style="margin-top:3rem;">
+    <div class="section-num">Key Risks</div>
+    <div class="risks">
+      <div class="risk">
+        <div class="risk-name">WDDM Driver Signing</div>
+        <div class="risk-desc">Microsoft requires EV code signing certificate (~$300/yr) for kernel drivers.</div>
+        <div class="risk-mit">Budget from Month 1. Test signing mode during development.</div>
+      </div>
+      <div class="risk">
+        <div class="risk-name">Performance Gap</div>
+        <div class="risk-desc">CPU inference is 5–10× slower than a real GPU in most workloads.</div>
+        <div class="risk-mit">Aggressive INT4 quantization, model selection guidance, honest benchmarks. Phase 2 closes the gap.</div>
+      </div>
+      <div class="risk">
+        <div class="risk-name">CUDA Apps</div>
+        <div class="risk-desc">Applications hardcoding CUDA calls bypass DirectML entirely.</div>
+        <div class="risk-mit">Clearly scoped: Phase 1 targets DirectML/ONNX apps only. CUDA is a Phase 3 stretch goal.</div>
+      </div>
+      <div class="risk">
+        <div class="risk-name">Large Player Clone</div>
+        <div class="risk-desc">Microsoft or Intel could build a similar abstraction layer.</div>
+        <div class="risk-mit">Speed + community moat. First-mover in India. Open source is hard to kill — forks survive acquisitions.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUCCESS METRICS -->
+  <div class="reveal" style="margin-top:3rem;">
+    <div class="section-num">Success Metrics</div>
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-val">M3</div>
+        <div class="metric-label">Ollama running end-to-end on 3 CPU laptops</div>
+      </div>
+      <div class="metric">
+        <div class="metric-val">500★</div>
+        <div class="metric-label">GitHub stars within 30 days of launch</div>
+      </div>
+      <div class="metric">
+        <div class="metric-val">2×</div>
+        <div class="metric-label">FPGA performance vs. software baseline</div>
+      </div>
+      <div class="metric">
+        <div class="metric-val">500</div>
+        <div class="metric-label">Hardware units sold in Month 12</div>
+      </div>
+      <div class="metric">
+        <div class="metric-val">&gt;40</div>
+        <div class="metric-label">NPS after first hardware batch</div>
+      </div>
+      <div class="metric">
+        <div class="metric-val">1</div>
+        <div class="metric-label">OEM MOU signed by Month 24</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-title">GPUsion</div>
+  <div class="footer-sub">The illusion that makes AI accessible to every Indian.</div>
+  <div class="footer-flag">🇮🇳</div>
+  <div class="footer-made">DESIGNED & DEVELOPED IN INDIA · v1.0 · MAY 2026</div>
+</footer>
+
+<script>
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+  reveals.forEach(r => observer.observe(r));
+
+  // Active nav
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('.nav-links a');
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(s => { if (window.scrollY >= s.offsetTop - 100) current = s.id; });
+    navLinks.forEach(a => {
+      a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+    });
+  });
+</script>
+</body>
+</html>
