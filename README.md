@@ -81,6 +81,8 @@ The illusion is at the driver level. The performance is real.
 
 ## Quick Start
 
+[हिंदी सेटअप गाइड](docs/SETUP.hi.md) — current setup steps and development limitations.
+
 > ⚠️ **GPUsion is in early development.** This is not yet ready for production use.  
 > Star the repo and watch for our first release.
 
