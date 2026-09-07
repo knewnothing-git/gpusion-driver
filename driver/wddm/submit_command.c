@@ -131,7 +131,7 @@ GpusionSubmitCommand(
         break;
 
     case GPUSION_CMD_INFER:
-        if (pSubmitCommand->DmaBufferSize < sizeof(GPUSION_CMD_INFER)) {
+        if (pSubmitCommand->DmaBufferSize < sizeof(GPUSION_INFER_CMD)) {
             Status = STATUS_BUFFER_TOO_SMALL;
             break;
         }
