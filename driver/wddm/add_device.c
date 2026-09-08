@@ -62,12 +62,12 @@ GpusionAddDevice(
                                  * SysInfo.PageSize) / (1024 * 1024);
 
         if (SystemRamMb < GPUSION_MIN_SYSTEM_RAM_MB) {
-            KdPrint(("GPUsion: Insufficient system RAM ((unsigned long long) MB, need (unsigned long long) MB)\n",
+            KdPrint(("GPUsion: Insufficient system RAM (%llu MB, need %llu MB)\n",
                      SystemRamMb, GPUSION_MIN_SYSTEM_RAM_MB));
             return STATUS_INSUFFICIENT_RESOURCES;
         }
 
-        KdPrint(("GPUsion: System RAM: (unsigned long long) MB — OK\n", SystemRamMb));
+        KdPrint(("GPUsion: System RAM: %llu MB — OK\n", SystemRamMb));
     }
 
     /*
@@ -152,14 +152,14 @@ GpusionRemoveDevice(
     /* Validate signature */
     ASSERT(Context->Signature == GPUSION_DEVICE_SIGNATURE);
 
-    KdPrint(("GPUsion: RemoveDevice — stats: requests=(long long) completed=(long long) failed=(long long)\n",
+    KdPrint(("GPUsion: RemoveDevice — stats: requests=%lld completed=%lld failed=%lld\n",
              Context->Stats.InferenceRequests,
              Context->Stats.InferenceCompleted,
              Context->Stats.InferenceFailed));
 
     /* Warn if VRAM proxy has leaked allocations */
     if (Context->Vram.AllocatedBytes > 0) {
-        KdPrint(("GPUsion: WARNING — (unsigned long long) bytes still allocated at RemoveDevice\n",
+        KdPrint(("GPUsion: WARNING — %llu bytes still allocated at RemoveDevice\n",
                  (ULONGLONG)Context->Vram.AllocatedBytes));
     }
 
