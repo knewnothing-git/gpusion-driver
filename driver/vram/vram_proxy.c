@@ -60,7 +60,7 @@ GpusionCreateAllocation(
 
         if (!Alloc) {
             KdPrint(("GPUsion: CreateAllocation — out of memory for tracking struct\n"));
-            return STATUS_NO_MEMORY;
+            goto Rollback;
         }
 
         RtlZeroMemory(Alloc, sizeof(GPUSION_ALLOCATION));
@@ -97,7 +97,7 @@ GpusionCreateAllocation(
             KdPrint(("GPUsion: CreateAllocation — failed to allocate (unsigned long long) bytes\n",
                      (ULONGLONG)SizeBytes));
             ExFreePoolWithTag(Alloc, GPUSION_ALLOC_SIGNATURE);
-            return STATUS_NO_MEMORY;
+            goto Rollback;
         }
 
         /* Zero the memory — GPU drivers always zero-init allocations */
@@ -129,6 +129,24 @@ GpusionCreateAllocation(
     }
 
     return STATUS_SUCCESS;
+
+Rollback:
+    /* A failed batch must release only allocations completed by this call. */
+    while (i > 0) {
+        DXGK_ALLOCATIONINFO* AllocInfo;
+        DXGKARG_DESTROYALLOCATION DestroyAllocation = {0};
+        HANDLE AllocHandle;
+
+        i--;
+        AllocInfo = &pCreateAllocation->pAllocationInfo[i];
+        AllocHandle = AllocInfo->pDriverData;
+        DestroyAllocation.NumAllocations = 1;
+        DestroyAllocation.pAllocationList = &AllocHandle;
+        GpusionDestroyAllocation(Context, &DestroyAllocation);
+        AllocInfo->pDriverData = NULL;
+        AllocInfo->DriverDataSize = 0;
+    }
+    return STATUS_NO_MEMORY;
 }
 
 /* ─── GpusionDestroyAllocation ──────────────────────────────────────────── */
