@@ -10,7 +10,7 @@ This document tells you everything you need to know to contribute effectively.
 
 - [Code of Conduct](#code-of-conduct)
 - [Where Help Is Needed Most](#where-help-is-needed-most)
-- [Bounty Program](#bounty-program)
+- [Recognition](#recognition)
 - [Getting Started](#getting-started)
 - [Development Setup](#development-setup)
 - [How to Submit a Contribution](#how-to-submit-a-contribution)
@@ -65,25 +65,37 @@ We follow the [Contributor Covenant v2.1](https://www.contributor-covenant.org/v
 
 ---
 
-## Bounty Program
+## Recognition
 
-GPUsion pays contributors for milestone achievements. Bounties are paid via UPI or bank transfer (India) or Wise (international).
+GPUsion does not currently run a paid bounty program.
 
-| Bounty | Amount | Criteria |
-|---|---|---|
-| First working DirectML → CPU passthrough | ₹5,000 | PR merged, verified working on 2+ laptops |
-| Successful Ollama model run via GPUsion | ₹5,000 | PR merged, Llama model completes inference |
-| Whisper.cpp working via GPUsion driver | ₹3,000 | PR merged, real-time factor > 0.3× |
-| Compatibility report — new laptop model | ₹500 | Filed using the compatibility report template |
-| Documentation — Hindi setup guide | ₹1,000 | Reviewed and merged |
-| Documentation improvement (any) | ₹500 | Reviewed and merged |
-| Bug report with reproduction steps | ₹250 | Confirmed reproducible by maintainer |
+An earlier version of this file advertised cash amounts per contribution. That was written before the project was public, and it did not account for the volume of automated, agent-generated submissions that open source repositories now receive. A solo-funded project cannot leave an open-ended payout advertised against that. Reports submitted while the cash terms were listed are honoured under those terms.
 
-To claim a bounty: open an issue tagged `bounty-claim` with your PR link and payment details. Bounties are paid within 7 days of PR merge.
+Contributions are recognised instead by:
 
-> Bounty pool is limited. First merged PR for each milestone wins.
+| Contribution | Recognition |
+|---|---|
+| Any merged PR | Listed in `CONTRIBUTORS.md` |
+| 3+ merged PRs | Named in the README |
+| Confirmed bug report | Credited in the commit that fixes it |
+| Significant feature work | Credited in release notes, and named as a co-maintainer if sustained |
 
----
+If a company or sponsor wants to fund specific bounties later, that will be announced here with its own scope and terms.
+
+### Reporting bugs
+
+File bug reports as issues in **this repository** (`knewnothing-git/gpusion-driver`). Reports filed elsewhere may not be seen. A good report includes:
+
+- The commit SHA you tested against
+- A minimal reproducer, ideally runnable
+- What you expected versus what happened
+- Your CPU model, RAM, and Windows version if the issue is machine-specific
+
+### AI-assisted contributions
+
+AI-assisted reports and patches are welcome, and are held to the same bar as any other contribution: the finding must be real, the reproduction must actually run, and a human must be accountable for the submission. Please say plainly in the report that a tool was involved.
+
+Two things will get a submission closed without review: an unverified finding pasted from a model's output, and a reproducer that does not compile or run as described. Volume is not a substitute for correctness — one confirmed bug is worth more here than twenty speculative ones.
 
 ## Getting Started
 
@@ -271,7 +283,6 @@ chore(ci): add Windows Server 2022 to test matrix
 | Label | Meaning |
 |---|---|
 | `good-first-issue` | No prior kernel experience needed |
-| `bounty` | Paid bounty available — see amount in issue |
 | `driver-core` | Touches kernel mode driver code |
 | `inference` | CPU inference engine work |
 | `compatibility` | Laptop/CPU compatibility work |
@@ -337,13 +348,13 @@ We are a small team. Response time is 24–48 hours on weekdays, slower on weeke
 
 ---
 
-## Recognition
+## Credits
 
 Every merged contributor is listed in [`CONTRIBUTORS.md`](CONTRIBUTORS.md).
 
 Significant contributors (3+ merged PRs) are listed in the README.
 
-Bounty recipients are acknowledged in release notes.
+Confirmed bug reporters are credited in the commit that fixes the issue.
 
 ---
 
