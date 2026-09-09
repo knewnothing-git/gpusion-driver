@@ -90,22 +90,9 @@ The illusion is at the driver level. The performance is real.
 # gpusion-setup.exe
 ```
 
-For developers who want to build from source:
+For developers: this repository does **not yet contain a production Windows/WDK build or installer script**. The build that is currently maintained is the Linux CI syntax-check build used to validate the driver C sources.
 
-```bash
-git clone https://github.com/gpusion/gpusion-driver
-cd gpusion-driver
-
-# Enable test signing mode (development only)
-# Run as Administrator:
-bcdedit /set testsigning on
-
-# Build (requires Windows Driver Kit)
-./build.ps1
-
-# Install driver
-./install.ps1
-```
+See **[Building and testing GPUsion today](docs/BUILDING.md)** for commands that match the files and CI configuration currently present in the repository, plus the status of the future Windows driver build.
 
 ---
 
