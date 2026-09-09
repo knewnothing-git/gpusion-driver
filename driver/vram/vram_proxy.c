@@ -94,7 +94,7 @@ GpusionCreateAllocation(
         }
 
         if (!Alloc->SystemMemory) {
-            KdPrint(("GPUsion: CreateAllocation — failed to allocate (unsigned long long) bytes\n",
+            KdPrint(("GPUsion: CreateAllocation — failed to allocate %llu bytes\n",
                      (ULONGLONG)SizeBytes));
             ExFreePoolWithTag(Alloc, GPUSION_ALLOC_SIGNATURE);
             return STATUS_NO_MEMORY;
@@ -122,10 +122,10 @@ GpusionCreateAllocation(
         InterlockedAdd64(&Context->Stats.BytesAllocated, (LONGLONG)SizeBytes);
         KeReleaseSpinLock(&Context->Vram.Lock, OldIrql);
 
-        KdPrint(("GPUsion: Allocated (unsigned long long) bytes at %p (GPU addr 0x%llX)\n",
+        KdPrint(("GPUsion: Allocated %llu bytes at %p (GPU addr 0x%llX)\n",
                  (ULONGLONG)SizeBytes,
                  Alloc->SystemMemory,
-                 Alloc->VirtualGpuAddress.QuadPart));
+                 (ULONGLONG)Alloc->VirtualGpuAddress.QuadPart));
     }
 
     return STATUS_SUCCESS;
@@ -180,7 +180,7 @@ GpusionDestroyAllocation(
         InterlockedAdd64(&Context->Stats.BytesFreed, (LONGLONG)Alloc->SizeBytes);
         KeReleaseSpinLock(&Context->Vram.Lock, OldIrql);
 
-        KdPrint(("GPUsion: Freeing (unsigned long long) bytes at %p\n",
+        KdPrint(("GPUsion: Freeing %llu bytes at %p\n",
                  (ULONGLONG)Alloc->SizeBytes,
                  Alloc->SystemMemory));
 
