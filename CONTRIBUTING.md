@@ -124,49 +124,39 @@ bcdedit /set testsigning off
 
 ```bash
 # 1. Fork the repository on GitHub, then clone your fork
-git clone https://github.com/YOUR_USERNAME/gpusion-driver
+git clone https://github.com/YOUR_USERNAME/gpusion-driver.git
 cd gpusion-driver
 
 # 2. Add the upstream remote
-git remote add upstream https://github.com/gpusion/gpusion-driver
+git remote add upstream https://github.com/knewnothing-git/gpusion-driver.git
 
 # 3. Create a branch for your work
-git checkout -b feature/your-feature-name
-
-# 4. Build the driver (requires WDK installed)
-./scripts/build.ps1
-
-# 5. Install the driver (run as Administrator)
-./scripts/install.ps1
-
-# 6. Verify installation
-# Open Device Manager → Display Adapters
-# You should see "GPUsion Virtual Adapter"
+git switch -c feature/your-feature-name
 ```
+
+For the Linux CI syntax check, install CMake, a C compiler, and Ninja, then run:
+
+```bash
+cmake -S . -B build -G Ninja
+cmake --build build --parallel
+```
+
+This checks the driver C sources but does not produce a functional Windows driver. The Windows WDK/MSBuild project and installation scripts are future work; `scripts/build.ps1` and `scripts/install.ps1` are not present in the current tree.
 
 ### Repository Structure
 
 ```
 gpusion-driver/
+├── .github/workflows/  # Linux CI workflows
 ├── driver/
-│   ├── kmdf/           # Kernel Mode Driver Framework code
-│   ├── wddm/           # WDDM display miniport driver
+│   ├── compat/         # Windows API compatibility stubs
 │   ├── dxgi/           # DXGI adapter enumeration
-│   └── vram/           # Virtual VRAM management
-├── inference/
-│   ├── directml/       # DirectML API intercept layer
-│   ├── onnx/           # ONNX Runtime CPU backend
-│   └── llama/          # llama.cpp integration
-├── installer/
-│   ├── nsis/           # NSIS installer scripts
-│   └── assets/         # Installer UI assets
-├── tests/
-│   ├── unit/           # Unit tests
-│   ├── integration/    # End-to-end tests
-│   └── compat/         # Compatibility test scripts
-├── benchmarks/         # Performance measurement scripts
+│   ├── kmdf/           # Kernel Mode Driver Framework code
+│   ├── vram/           # Virtual VRAM management
+│   └── wddm/           # WDDM display miniport driver
 ├── docs/               # Technical documentation
-└── scripts/            # Build and install scripts
+├── CMakeLists.txt      # Linux syntax-check configuration
+└── driver/gpusion.inf # Driver installation manifest
 ```
 
 ---
@@ -206,7 +196,7 @@ gpusion-driver/
 
 Every PR must:
 
-- [ ] Pass all existing tests (`./scripts/test.ps1`)
+- [ ] Pass the Linux syntax check (`cmake -S . -B build -G Ninja && cmake --build build --parallel`) and any tests documented by your PR
 - [ ] Include tests for new functionality
 - [ ] Update documentation if behaviour changes
 - [ ] Follow the coding standards below
@@ -284,39 +274,24 @@ chore(ci): add Windows Server 2022 to test matrix
 
 ## Testing Requirements
 
-### Unit Tests
+### Linux CI checks
 
-Located in `tests/unit/`. Run with:
+The current CI workflow runs the CMake/GCC syntax check and cppcheck on every pull request. Run the syntax check locally with:
 
-```powershell
-./scripts/test.ps1 -suite unit
+```bash
+cmake -S . -B build -G Ninja
+cmake --build build --parallel
 ```
 
-### Integration Tests
+The current tree does not contain `scripts/test.ps1`, `tests/unit/`, or `tests/integration/`; do not use the old PowerShell test commands from earlier versions of this guide.
 
-Require a working driver installation. Run with:
+### Windows and integration testing
 
-```powershell
-./scripts/test.ps1 -suite integration
-```
+The functional Windows WDK/MSBuild project and driver installation flow are still being completed. Once those files are checked in, this section will document the supported Windows build and integration commands.
 
-Integration tests verify:
-- Driver loads and registers in Device Manager
-- DXGI enumeration returns GPUsion adapter
-- DirectML inference completes without error
-- Memory is correctly released after inference
+### Compatibility reports
 
-### Compatibility Reports
-
-If you don't write code but want to contribute — **compatibility reports are extremely valuable**.
-
-Run the compatibility script on your laptop:
-
-```powershell
-./scripts/compat-report.ps1
-```
-
-This generates a report file. Open an issue using the **Compatibility Report** template and attach it.
+If you don't write code but want to contribute — **compatibility reports are extremely valuable**. The compatibility-report script and template are not yet present in this checkout, so open an issue with the laptop model, CPU, RAM, Windows version, and exact observations until that tooling is added.
 
 We especially need reports from:
 - Intel 10th, 11th, 12th, 13th, 14th gen CPUs

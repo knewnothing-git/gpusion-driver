@@ -84,41 +84,33 @@ The illusion is at the driver level. The performance is real.
 > ⚠️ **GPUsion is in early development.** This is not yet ready for production use.  
 > Star the repo and watch for our first release.
 
-```bash
-# Coming in Phase 1 — Month 4
-# One-click installer. No command line required.
-# gpusion-setup.exe
-```
+The repository currently contains the driver sources and a Linux CI syntax-check path. The functional Windows driver build is still being completed.
 
-For developers who want to build from source:
+To inspect the source and run the available Linux syntax check, install CMake, a C compiler, and Ninja, then run:
 
 ```bash
-git clone https://github.com/gpusion/gpusion-driver
+git clone https://github.com/knewnothing-git/gpusion-driver.git
 cd gpusion-driver
-
-# Enable test signing mode (development only)
-# Run as Administrator:
-bcdedit /set testsigning on
-
-# Build (requires Windows Driver Kit)
-./build.ps1
-
-# Install driver
-./install.ps1
+cmake -S . -B build -G Ninja
+cmake --build build --parallel
 ```
+
+This produces a syntax-check library; it is not a loadable Windows driver. A Windows build requires Visual Studio and the Windows Driver Kit, but this checkout does not yet include a checked-in MSBuild project or install script. Do not run the old `build.ps1` or `install.ps1` commands shown in earlier versions of this guide.
 
 ---
 
 ## Repositories
 
-| Repo | Description | Status |
-|---|---|---|
-| [`gpusion-driver`](.) | WDDM virtual GPU kernel driver — the core illusion | 🔨 Active |
-| [`gpusion-inference`](.) | CPU inference translation layer (llama.cpp / ONNX) | 🔨 Active |
-| [`gpusion-installer`](.) | One-click Windows installer for non-technical users | 📋 Planned |
-| [`gpusion-firmware`](.) | FPGA/ASIC firmware for Phase 2 hardware dongle | 📋 Phase 2 |
-| [`gpusion-benchmark`](.) | Standardized benchmarks vs. real GPU baselines | 📋 Planned |
+Only the driver repository is present in this checkout. Its current top-level layout is:
 
+| Path | Purpose |
+|---|---|
+| `driver/` | WDDM, KMDF, DXGI, compatibility, and VRAM driver sources |
+| `docs/` | Project documentation and the PRD |
+| `CMakeLists.txt` | Linux CI syntax-check configuration |
+| `.github/workflows/ci.yml` | Linux syntax, static-analysis, and test jobs |
+
+The inference, installer, firmware, and benchmark repositories described in the roadmap are planned components and are not separate checked-out repositories yet.
 ---
 
 ## Supported AI Frameworks (Phase 1 Target)
