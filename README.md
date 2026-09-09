@@ -188,6 +188,7 @@ It needs you to become something bigger.
 - 🧠 **llama.cpp / ONNX Runtime** — inference optimization on CPU
 - 🧪 **Testing** — Intel / AMD laptop compatibility across generations
 - 📝 **Documentation** — Hindi + English setup guides for non-technical users
+  - [हिंदी developer setup guide](docs/SETUP_HI.md)
 - 🌐 **Translations** — Hindi, Tamil, Telugu, Bengali READMEs
 
 **Bounties available:**
