@@ -39,7 +39,14 @@ cmake -S . -B build -G Ninja -DCMAKE_C_COMPILER=gcc -DCMAKE_BUILD_TYPE=Debug
 cmake --build build --parallel 2
 ```
 
-A successful build produces the static syntax-check library under `build/`. It does not prove that the WDDM driver installs or that AI workloads can run through GPUsion.
+**This check does not currently pass.** `CMakeLists.txt` enables `-Werror`, and on the current tree two files fail on format strings:
+
+- `driver/vram/vram_proxy.c` — lines 97 and 125
+- `driver/wddm/add_device.c` — lines 65, 70 and 155
+
+The diagnostics are `format-extra-args` and `format=`. This is the already-filed [issue #7](https://github.com/knewnothing-git/gpusion-driver/issues/7), not a fault in your compiler, CMake installation or checkout. Until it is fixed, expect `libgpusion_syntax_check.a` **not** to be produced, and do not re-run the command expecting a different result: record the first error, its file and line, your compiler version, and the commit SHA.
+
+When the tree is healthy, this build produces the static syntax-check library under `build/`. Even then it does not prove that the WDDM driver installs or that AI workloads can run through GPUsion.
 
 ## Windows development prerequisites
 
@@ -61,4 +68,6 @@ Do not enable Windows test-signing mode just to inspect the repository or run th
 
 If you cloned the repository specifically to run `./build.ps1`, `./install.ps1`, or the `scripts/*.ps1` commands mentioned in the existing README/CONTRIBUTING guide, those commands cannot currently be completed because the referenced scripts are not in the repository.
 
-Until the Windows build path lands, use the Linux syntax check above for source-level compile checks and treat the Windows driver as development work in progress.
+The one build path that does exist — the Linux syntax check above — fails on the current tree because of the format-string errors in [issue #7](https://github.com/knewnothing-git/gpusion-driver/issues/7). So there is at present no command in this repository that completes successfully end to end. That is a property of the current commit, not of your environment, and it is worth saying plainly rather than letting contributors conclude they set something up wrongly.
+
+Until the Windows build path lands and #7 is fixed, treat the Windows driver and the Linux syntax check both as development work in progress. Reading the sources, filing reproducible reports, and reviewing pull requests are the contributions that currently move this project forward.
