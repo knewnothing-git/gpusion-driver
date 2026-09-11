@@ -66,6 +66,9 @@ GpusionQueryAdapterInfo(
 
     /* ── Driver Capabilities ────────────────────────────────────────── */
     case DXGKQAITYPE_DRIVERCAPS:
+        if (pQueryAdapterInfo->OutputDataSize < sizeof(DXGK_DRIVERCAPS)) {
+            return STATUS_BUFFER_TOO_SMALL;
+        }
         return GpusionQueryDriverCaps(
             Context,
             (DXGK_DRIVERCAPS*)pQueryAdapterInfo->pOutputData
@@ -75,6 +78,9 @@ GpusionQueryAdapterInfo(
     case DXGKQAITYPE_QUERYSEGMENT:
     case DXGKQAITYPE_QUERYSEGMENT3:
     case DXGKQAITYPE_QUERYSEGMENT4:
+        if (pQueryAdapterInfo->OutputDataSize < sizeof(DXGK_QUERYSEGMENTOUT)) {
+            return STATUS_BUFFER_TOO_SMALL;
+        }
         return GpusionQuerySegmentInfo(
             Context,
             (DXGK_QUERYSEGMENTOUT*)pQueryAdapterInfo->pOutputData
