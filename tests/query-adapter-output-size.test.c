@@ -14,7 +14,7 @@ enum { CANARY_BYTES = 8 };
 typedef union {
     DXGK_DRIVERCAPS DriverCaps;
     DXGK_QUERYSEGMENTOUT SegmentInfo;
-    unsigned char Bytes[sizeof(DXGK_QUERYSEGMENTOUT) + CANARY_BYTES];
+    unsigned char Bytes[sizeof(DXGK_DRIVERCAPS) + CANARY_BYTES];
 } OUTPUT_BUFFER;
 
 static void
